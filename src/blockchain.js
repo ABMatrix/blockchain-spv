@@ -41,6 +41,7 @@ class Blockchain extends EventEmitter {
       if (opts.start == null) {
         throw Error('Must specify starting header')
       }
+      console.log('opts.start = ',opts.start.height)
       this.store.push(opts.start)
     }
 
@@ -211,7 +212,7 @@ class Blockchain extends EventEmitter {
           while (
             cursor.height % retargetInterval !== 0 &&
             cursor.bits === this.maxTargetBits
-          ) {
+            ) {
             cursor = this.getByHeight(cursor.height - 1, headers)
           }
           expectedBits = cursor.bits
@@ -240,7 +241,8 @@ class Blockchain extends EventEmitter {
 module.exports = old(Blockchain)
 Object.assign(module.exports, {
   getHash,
-  calculateTarget
+  calculateTarget,
+  getHashTx
 })
 
 function sha256 (data) {
@@ -249,6 +251,11 @@ function sha256 (data) {
 
 function getHash (header) {
   let bytes = types.header.encode(header)
+  return sha256(sha256(bytes))
+}
+
+function getHashTx (tx) {
+  let bytes = types.transaction.encode(tx)
   return sha256(sha256(bytes))
 }
 
